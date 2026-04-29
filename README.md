@@ -18,6 +18,8 @@ The script downloads the latest Windows x64 Azure Pipelines agent, extracts it l
 
 The PAT typically needs `Agent Pools` read and manage permission.
 
+The Azure DevOps user that creates the PAT must also have permission to manage the target agent pool. PAT scopes do not override Azure DevOps pool permissions.
+
 ## Quick Start
 
 Run PowerShell as Administrator on the VM.
@@ -38,7 +40,7 @@ Download and run the installer. Paste the whole block into PowerShell, then pres
   $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 
   & $scriptPath `
-    -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
+    -AzureDevOpsUrl "https://dev.azure.com/caddo-apps/" `
     -PoolName "Default" `
     -AgentName "$env:COMPUTERNAME" `
     -Pat $pat
@@ -65,7 +67,7 @@ Local System does not require a service account password.
 
 | Parameter | Required | Default | Purpose |
 | --- | --- | --- | --- |
-| `AzureDevOpsUrl` | Yes | None | Azure DevOps organization URL, such as `https://dev.azure.com/caddo-apps`. |
+| `AzureDevOpsUrl` | Yes | None | Azure DevOps organization URL, such as `https://dev.azure.com/caddo-apps/`. |
 | `PoolName` | No | `Default` | Azure DevOps agent pool to register the agent in. |
 | `AgentName` | No | Current computer name | Agent name shown in Azure DevOps. |
 | `InstallDir` | No | `C:\agent` | Directory where the agent files are installed. |
@@ -83,7 +85,7 @@ Install into the default pool with the VM name as the agent name:
 $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 
 & "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
-  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
+  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps/" `
   -Pat $pat
 ```
 
@@ -93,7 +95,7 @@ Install into a specific pool with a specific agent name:
 $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 
 & "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
-  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
+  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps/" `
   -PoolName "Default" `
   -AgentName "vm-web-01" `
   -Pat $pat
@@ -105,7 +107,7 @@ Reconfigure an existing agent:
 $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 
 & "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
-  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
+  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps/" `
   -PoolName "Default" `
   -AgentName "vm-web-01" `
   -Pat $pat `
@@ -119,7 +121,7 @@ $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 $password = Read-Host "Service account password" -AsSecureString
 
 & "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
-  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
+  -AzureDevOpsUrl "https://dev.azure.com/caddo-apps/" `
   -PoolName "Default" `
   -AgentName "vm-web-01" `
   -Pat $pat `
@@ -137,3 +139,20 @@ $password = Read-Host "Service account password" -AsSecureString
 ```text
 https://github.com/spencer-landclan/windows-azure-agent-install-script
 ```
+
+## Troubleshooting
+
+### VS30063: You are not authorized to access https://dev.azure.com
+
+This error means the script downloaded successfully, but Azure DevOps rejected the PAT during agent registration.
+
+Check these items:
+
+- Create the PAT while signed in to `https://dev.azure.com/caddo-apps/`.
+- When creating the PAT, select the `caddo-apps` organization or `All accessible organizations`.
+- Select `Show all scopes`, then grant `Agent Pools` read and manage.
+- Make sure the PAT is not expired.
+- Make sure the user that created the PAT has permission to manage the target pool, such as `Default`.
+- Use the organization URL with the org name: `https://dev.azure.com/caddo-apps/`.
+
+After creating a new PAT, rerun the Quick Start block and paste the new token when prompted.

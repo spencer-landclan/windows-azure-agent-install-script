@@ -87,6 +87,36 @@ function Ensure-Tls12 {
   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 }
 
+function Test-AgentPoolAccess {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$OrganizationUrl,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Pool,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Token
+  )
+
+  $encodedPool = [Uri]::EscapeDataString($Pool)
+  $apiUrl = "${OrganizationUrl}_apis/distributedtask/pools?poolName=$encodedPool&api-version=7.1-preview.1"
+  $basicToken = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$Token"))
+  $headers = @{ Authorization = "Basic $basicToken" }
+
+  Write-Host "Validating Azure DevOps PAT and agent pool access..."
+
+  try {
+    $response = Invoke-RestMethod -Uri $apiUrl -Headers $headers -UseBasicParsing
+  } catch {
+    throw "Azure DevOps rejected the PAT before agent configuration. Confirm the PAT belongs to the target organization, has Agent Pools read/manage scope, and that the PAT owner can manage pool '$Pool'. Original error: $($_.Exception.Message)"
+  }
+
+  if (!$response.value -or $response.value.Count -eq 0) {
+    throw "Could not find Azure DevOps agent pool '$Pool'. Confirm the pool exists and the PAT owner has access to it."
+  }
+}
+
 Assert-Administrator
 Ensure-Tls12
 
@@ -98,6 +128,8 @@ if ($ServiceAccountPassword) {
 }
 
 try {
+  Test-AgentPoolAccess -OrganizationUrl $AzureDevOpsUrl -Pool $PoolName -Token $plainPat
+
   if (!(Test-Path $InstallDir)) {
     New-Item -ItemType Directory -Path $InstallDir | Out-Null
   }

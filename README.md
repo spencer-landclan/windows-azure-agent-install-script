@@ -156,3 +156,28 @@ Check these items:
 - Use the organization URL with the org name: `https://dev.azure.com/caddo-apps/`.
 
 After creating a new PAT, rerun the Quick Start block and paste the new token when prompted.
+
+You can also test the PAT before running the installer:
+
+```powershell
+$orgUrl = "https://dev.azure.com/caddo-apps/"
+$poolName = "Default"
+$pat = Read-Host "Azure DevOps PAT" -AsSecureString
+
+$bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pat)
+try {
+  $plainPat = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr).Trim()
+} finally {
+  [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+}
+
+$encodedPool = [Uri]::EscapeDataString($poolName)
+$apiUrl = "${orgUrl}_apis/distributedtask/pools?poolName=$encodedPool&api-version=7.1-preview.1"
+$basicToken = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$plainPat"))
+
+Invoke-RestMethod `
+  -Uri $apiUrl `
+  -Headers @{ Authorization = "Basic $basicToken" }
+```
+
+If this test returns `VS30063`, the issue is definitely the PAT, organization selection, or pool permissions.

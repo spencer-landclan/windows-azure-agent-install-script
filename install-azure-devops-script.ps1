@@ -90,7 +90,8 @@ function Ensure-Tls12 {
 Assert-Administrator
 Ensure-Tls12
 
-$plainPat = Convert-SecureStringToPlainText -SecureValue $Pat
+$AzureDevOpsUrl = $AzureDevOpsUrl.Trim().TrimEnd('/') + '/'
+$plainPat = (Convert-SecureStringToPlainText -SecureValue $Pat).Trim()
 $plainServicePassword = $null
 if ($ServiceAccountPassword) {
   $plainServicePassword = Convert-SecureStringToPlainText -SecureValue $ServiceAccountPassword

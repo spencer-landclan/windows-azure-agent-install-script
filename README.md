@@ -6,7 +6,7 @@ The script downloads the latest Windows x64 Azure Pipelines agent, extracts it l
 
 ## Files
 
-- `install-azure-devops-agent.ps1`: Installs and configures the Azure DevOps agent.
+- `install-azure-devops-script.ps1`: Installs and configures the Azure DevOps agent.
 - `README.md`: Usage instructions for the installer repository.
 
 ## Requirements
@@ -28,8 +28,8 @@ Download and run the installer. Paste the whole block into PowerShell, then pres
 & {
   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
 
-  $scriptPath = Join-Path $env:USERPROFILE "Downloads\install-azure-devops-agent.ps1"
-  $scriptUrl = "https://raw.githubusercontent.com/spencer-landclan/windows-azure-agent-install-script/main/install-azure-devops-agent.ps1"
+  $scriptPath = Join-Path $env:USERPROFILE "Downloads\install-azure-devops-script.ps1"
+  $scriptUrl = "https://raw.githubusercontent.com/spencer-landclan/windows-azure-agent-install-script/main/install-azure-devops-script.ps1"
 
   Invoke-WebRequest -Uri $scriptUrl -OutFile $scriptPath
 
@@ -82,7 +82,7 @@ Install into the default pool with the VM name as the agent name:
 ```powershell
 $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 
-& "$env:USERPROFILE\Downloads\install-azure-devops-agent.ps1" `
+& "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
   -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
   -Pat $pat
 ```
@@ -92,7 +92,7 @@ Install into a specific pool with a specific agent name:
 ```powershell
 $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 
-& "$env:USERPROFILE\Downloads\install-azure-devops-agent.ps1" `
+& "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
   -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
   -PoolName "Default" `
   -AgentName "vm-web-01" `
@@ -104,7 +104,7 @@ Reconfigure an existing agent:
 ```powershell
 $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 
-& "$env:USERPROFILE\Downloads\install-azure-devops-agent.ps1" `
+& "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
   -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
   -PoolName "Default" `
   -AgentName "vm-web-01" `
@@ -118,7 +118,7 @@ Use a custom service account:
 $pat = Read-Host "Azure DevOps PAT" -AsSecureString
 $password = Read-Host "Service account password" -AsSecureString
 
-& "$env:USERPROFILE\Downloads\install-azure-devops-agent.ps1" `
+& "$env:USERPROFILE\Downloads\install-azure-devops-script.ps1" `
   -AzureDevOpsUrl "https://dev.azure.com/caddo-apps" `
   -PoolName "Default" `
   -AgentName "vm-web-01" `
